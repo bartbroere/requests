@@ -437,7 +437,6 @@ class Session:
         request.responseIsBinary = False
         if stream:
             # we ask the browser not to worry about the character set, keeping the raw bytes intact
-            request.overrideMimeType('text/plain; charset=x-user-defined')
             request.responseIsBinary = True
         # Send cookies that might be set in the browser already
         request.withCredentials = True
@@ -447,7 +446,6 @@ class Session:
                 url = url + '?' + urlencode(params)
         headers = self.set_headers(request, headers)
         if ('range' in headers) or ('accept' in headers and 'application/octet-stream' in headers['accept']):
-            request.overrideMimeType('text/plain; charset=x-user-defined')
             request.responseIsBinary = True
         if data:
             if isinstance(data, Mapping):
@@ -470,6 +468,9 @@ class Session:
             request.send(data)
         else:
             request.send()
+        # TODO Implement switching between streaming, chunked, binary and text responses properly
+        if 'text' in request.getResponseHeader("Content-Type") or 'application/json' in request.getResponseHeader('Content-Type'):
+            request.responseIsBinary = False
         return Response(request)
 
     def get(self, url, **kwargs):

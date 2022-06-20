@@ -601,6 +601,7 @@ class Response(object):
     def __init__(self, request):
         if request.responseIsBinary:
             # bring everything outside the range of a single byte within this range
+            request.overrideMimeType('text/plain; charset=x-user-defined')
             self.raw = BytesIO(bytes(ord(byte) & 0xff for byte in request.response))
         else:
             self.text = str(request.response)
